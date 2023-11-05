@@ -34,13 +34,10 @@ export default {
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          right: ''
         },
         initialView: 'dayGridMonth',
-
-        initialEvents: INITIAL_EVENTS,
-        //events: 'https://fullcalendar.io/api/demo-feeds/events.json?overload-day&start=2023-10-29T00%3A00%3A00%2B03%3A00&end=2023-12-10T00%3A00%3A00%2B03%3A00', // alternatively, use the `events` setting to fetch from a feed
-
+        events: [],
         editable: true,
         selectable: true,
         selectMirror: true,
@@ -51,6 +48,7 @@ export default {
         eventsSet: this.handleEvents,
         eventDidMount: this.handleEventMount,
         eventMouseEnter: this.handleEventMouseEnter,
+        datesSet: this.onDateSet
         /* you can update a remote database when these fire:
         eventAdd:
         eventChange:
@@ -62,6 +60,11 @@ export default {
   },
 
   methods: {
+
+    onDateSet(newDates) {
+      const newMonth = newDates.view.currentStart;
+      console.log('User navigated to month:', newMonth);
+    },
 
     handleWeekendsToggle() {
       this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
@@ -107,40 +110,21 @@ export default {
         content: '<strong>(' + timeString + ') <span style="color: aqua;">' + args.event.title + '</span></strong>',
         allowHTML: true,
       });
-    }
+    },
+  },
+
+  created() {
+    setTimeout(() => {
+      this.calendarOptions.events = INITIAL_EVENTS
+    }, 2000);
   }
 }
 </script>
 
 <template>
   <div class='demo-app' id="app">
-    <div class='demo-app-sidebar'>
-      <div class='demo-app-sidebar-section'>
-        <h2>Instructions</h2>
-        <ul>
-          <li>Select dates and you will be prompted to create a new event</li>
-          <li>Drag, drop, and resize events</li>
-          <li>Click an event to delete it</li>
-        </ul>
-      </div>
-      <div class='demo-app-sidebar-section'>
-        <label>
-          <input type='checkbox' :checked='calendarOptions.weekends' @change='handleWeekendsToggle' />
-          toggle weekends
-        </label>
-      </div>
-      <div class='demo-app-sidebar-section'>
-        <h2>All Events ({{ currentEvents.length }})</h2>
-        <ul>
-          <li v-for='event in currentEvents' :key='event.id'>
-            <b>{{ event.startStr }}</b>
-            <i>{{ event.title }}</i>
-          </li>
-        </ul>
-      </div>
-    </div>
     <div class='demo-app-main'>
-      <FullCalendar class='demo-app-calendar' :options='calendarOptions'>
+      <FullCalendar class='demo-app-calendar' :options="calendarOptions">
         <template v-slot:eventContent='arg'>
           <b>{{ arg.timeText }}</b>
           <i>{{ arg.event.title }}</i>
